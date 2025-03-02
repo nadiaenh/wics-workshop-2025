@@ -8,7 +8,7 @@ A modern chat application built with Next.js, integrating Anthropic's AI capabil
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
 ![Anthropic](https://img.shields.io/badge/Anthropic-6B46C1?style=for-the-badge&logo=anthropic&logoColor=white)
 
-![](public/screenshot.png)
+![](public/capture.png)
 
 ## ✨ Prerequisites
 

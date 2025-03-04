@@ -59,33 +59,24 @@ export default function ChatPage() {
 
   // Load user data
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user: currentUser }, error } = await supabase.auth.getUser()
-      if (error) {
-        console.error('Error fetching user:', error)
-        return
-      }
-      setUser(currentUser)
-    }
-    
-    getUser()
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
-      setUser(session?.user ?? null)
+      if (session?.user) {
+        setUser(session.user)
+        fetchConversations()
+      } else {
+        setUser(null)
+        setConversations([])
+        setCurrentConversation(null)
+        setError(null)
+      }
     })
 
     return () => subscription.unsubscribe()
-  }, [supabase.auth])
+  }, [])
 
-  // Load conversations when component mounts or auth state changes
+  // Handle initial loading state
   useEffect(() => {
-    if (user) {
-      fetchConversations()
-    } else {
-      // Clear conversations when logged out
-      setConversations([])
-      setCurrentConversation(null)
-      setError(null)
+    if (!user) {
       setIsLoadingConversations(false)
     }
   }, [user])

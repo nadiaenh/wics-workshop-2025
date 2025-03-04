@@ -12,14 +12,15 @@ export async function POST(req: Request) {
         system: "You are a helpful AI assistant. Provide clear, concise, and accurate information.",
         providerOptions: {
             anthropic: {
-                thinking: { type: "enabled", budgetTokens: 12000 },
+                temperature: 0.7,
+                maxTokens: 1000,
             },
         },
     })
 
     // Convert the result to a streaming response
     return result.toDataStreamResponse({
-        sendReasoning: true,
+        sendReasoning: false,
     })
 }
 

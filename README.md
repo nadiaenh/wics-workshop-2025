@@ -54,11 +54,10 @@ You can do everything below in your local machine, in [Github Codespaces](https:
 
 ```bash
 chatgptnextjs/
-├── src/
-│   ├── app/          # Next.js app directory - must be named app
-│   ├── components/   # React components (button, chat-sidebar, etc.)
-│   ├── lib/          # Utility functions (Supabase client, etc.)
-│   ├── types/        # TypeScript types and interfaces
+├── app/          # Next.js app directory - must be named app
+├── components/   # React components (button, chat-sidebar, etc.)
+├── lib/          # Utility functions (Supabase client, etc.)
+├── types/        # TypeScript types and interfaces
 ├── public/           # Static files like images, icons, etc.
 ├── setup.sql        # Database setup commands
 └── ...              # Configuration files
@@ -69,7 +68,7 @@ chatgptnextjs/
 The project uses Next.js 13+ App Router, which follows a file-system based routing approach. Here's the current structure and guidelines for expansion:
 
 ```bash
-src/app/
+app/
 ├── layout.tsx           # Root layout - shared UI and providers across the app
 ├── page.tsx             # Home page (/) - landing page
 ├── api/                 # API route handlers
@@ -79,7 +78,7 @@ src/app/
 │       └── route.ts        # Conversation CRUD operations
 ```
 
-Further routes and pages can be added to the `src/app/` directory as needed.
+Further routes and pages can be added to the `app/` directory as needed.
 
 ## 📝 License
 

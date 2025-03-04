@@ -2,20 +2,20 @@
 
 import { useState, useEffect } from 'react'
 import { useChat } from 'ai/react'
-import ChatSidebar from '@/components/chat-sidebar'
-import ChatArea from '@/components/chat-area'
-import { Button } from '@/components/ui/button'
+import ChatSidebar from '../components/chat-sidebar'
+import ChatArea from '../components/chat-area'
+import { Button } from '../components/ui/button'
 import { Menu } from 'lucide-react'
 import { type Message } from 'ai'
-import { type Conversation } from '@/lib/supabase'
+import { type Conversation } from '../lib/supabase'
 
 export default function ChatPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingConversations, setIsLoadingConversations] = useState(true)
 
-  const { messages, input, handleInputChange, handleSubmit: handleChatSubmit, setMessages } = useChat({
+  const { messages, input, handleInputChange, handleSubmit: handleChatSubmit, setMessages, isLoading } = useChat({
     onFinish: async (message) => {
       if (currentConversation) {
         // Save the assistant's message to the database
@@ -34,10 +34,10 @@ export default function ChatPage() {
       const response = await fetch('/api/conversations')
       const data = await response.json()
       setConversations(data)
-      setIsLoading(false)
+      setIsLoadingConversations(false)
     } catch (error) {
       console.error('Error fetching conversations:', error)
-      setIsLoading(false)
+      setIsLoadingConversations(false)
     }
   }
 
@@ -127,7 +127,7 @@ export default function ChatPage() {
           currentConversation={currentConversation}
           onNewChat={createNewConversation}
           onSelectConversation={loadConversation}
-          isLoading={isLoading}
+          isLoading={isLoadingConversations}
         />
       </div>
 

@@ -1,11 +1,11 @@
 import type React from "react"
 import type { FormEvent } from "react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/text-area"
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
+import { Button } from "./ui/button"
+import { Textarea } from "./ui/text-area"
 import { SendIcon, Sparkles } from "lucide-react"
 import type { Message } from "ai"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { ScrollArea } from "./ui/scroll-area"
 
 interface ChatAreaProps {
   messages: Message[]
@@ -46,12 +46,12 @@ export default function ChatArea({ messages, input, handleInputChange, handleSub
                     {message.role === "user" ? (
                       <>
                         <AvatarFallback>U</AvatarFallback>
-                        <AvatarImage src="/placeholder.svg?height=32&width=32" />
+                        <AvatarImage src="/placeholder.jpeg?height=32&width=32" />
                       </>
                     ) : (
                       <>
                         <AvatarFallback>AI</AvatarFallback>
-                        <AvatarImage src="/placeholder.svg?height=32&width=32" />
+                        <AvatarImage src="/placeholder.jpeg?height=32&width=32" />
                       </>
                     )}
                   </Avatar>
@@ -65,6 +65,24 @@ export default function ChatArea({ messages, input, handleInputChange, handleSub
                 </div>
               </div>
             ))
+          )}
+          {/* Loading indicator - only show if the last message was from the user */}
+          {isLoading && messages.length > 0 && messages[messages.length - 1]?.role === 'user' && (
+            <div className="flex justify-start">
+              <div className="flex gap-3 max-w-[80%]">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback>AI</AvatarFallback>
+                  <AvatarImage src="/placeholder.jpeg?height=32&width=32" />
+                </Avatar>
+                <div className="rounded-lg p-4 bg-muted flex items-center gap-2">
+                  <div className="flex gap-1">
+                    <span className="w-2 h-2 bg-muted-foreground/40 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                    <span className="w-2 h-2 bg-muted-foreground/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                    <span className="w-2 h-2 bg-muted-foreground/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </ScrollArea>

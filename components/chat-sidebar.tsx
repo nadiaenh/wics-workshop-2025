@@ -1,7 +1,7 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "./ui/button"
 import { PlusIcon, MessageSquare, Settings, Loader2 } from "lucide-react"
-import type { Conversation } from "@/lib/supabase"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import type { Conversation } from "../lib/supabase"
+import { ScrollArea } from "./ui/scroll-area"
 
 interface ChatSidebarProps {
   conversations: Conversation[]

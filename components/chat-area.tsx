@@ -67,16 +67,16 @@ export default function ChatArea({ messages, input, handleInputChange, handleSub
               <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div className={`flex gap-3 max-w-[80%] ${message.role === "user" ? "flex-row-reverse" : ""}`}>
                   {/* Avatar for user or AI */}
-                  <Avatar className="h-8 w-8">
+                  <Avatar className="h-10 w-10">
                     {message.role === "user" ? (
                       <>
                         <AvatarFallback>U</AvatarFallback>
-                        <AvatarImage src="/placeholder.jpeg?height=32&width=32" />
+                        <AvatarImage src="/avatar.png" />
                       </>
                     ) : (
                       <>
                         <AvatarFallback>AI</AvatarFallback>
-                        <AvatarImage src="/placeholder.jpeg?height=32&width=32" />
+                        <AvatarImage src="/avatar.png" />
                       </>
                     )}
                   </Avatar>
@@ -96,9 +96,9 @@ export default function ChatArea({ messages, input, handleInputChange, handleSub
           {isLoading && messages.length > 0 && messages[messages.length - 1]?.role === 'user' && (
             <div className="flex justify-start">
               <div className="flex gap-3 max-w-[80%]">
-                <Avatar className="h-8 w-8">
+                <Avatar className="h-10 w-10">
                   <AvatarFallback>AI</AvatarFallback>
-                  <AvatarImage src="/placeholder.jpeg?height=32&width=32" />
+                  <AvatarImage src="/avatar.png" />
                 </Avatar>
                 <div className="rounded-lg p-4 bg-muted flex items-center gap-2">
                   <div className="flex gap-1">

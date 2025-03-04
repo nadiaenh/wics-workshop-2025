@@ -25,30 +25,30 @@ import { createBrowserClient } from '@supabase/ssr'
 import { type AuthError, type User, type AuthChangeEvent, type Session } from '@supabase/supabase-js'
 
 export default function ChatPage() {
-  // UI State
-  const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [isLoadingConversations, setIsLoadingConversations] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  // State for UI elements
+  const [sidebarOpen, setSidebarOpen] = useState(true)  // Controls sidebar visibility on mobile
+  const [isLoadingConversations, setIsLoadingConversations] = useState(true)  // Shows loading state while fetching conversations
+  const [error, setError] = useState<string | null>(null)  // Stores error messages to display to the user
 
-  // Auth State
+  // Authentication setup and state
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<User | null>(null)  // Stores the currently logged in user
 
-  // Data State
-  const [conversations, setConversations] = useState<Conversation[]>([])
-  const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null)
+  // State for chat data
+  const [conversations, setConversations] = useState<Conversation[]>([])  // List of all chat conversations
+  const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null)  // The active conversation
 
-  // AI Chat Hook
+  // Setup AI chat functionality
   const { 
-    messages, 
-    input, 
-    handleInputChange, 
-    handleSubmit: handleChatSubmit, 
-    setMessages, 
-    isLoading 
+    messages,  // Array of messages in the current chat
+    input,     // Current text in the input field
+    handleInputChange,  // Function to update input as user types
+    handleSubmit: handleChatSubmit,  // Function to send message to AI
+    setMessages,  // Function to update message history
+    isLoading    // Whether AI is currently generating a response
   } = useChat({
     onFinish: async (message) => {
       if (currentConversation) {
@@ -57,13 +57,15 @@ export default function ChatPage() {
     },
   })
 
-  // Load user data
+  // Setup authentication listener
+  // This runs once when the component loads and sets up automatic user session handling
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
       if (session?.user) {
         setUser(session.user)
-        fetchConversations()
+        fetchConversations()  // Load conversations when user logs in
       } else {
+        // Clear all user data when logged out
         setUser(null)
         setConversations([])
         setCurrentConversation(null)
@@ -71,10 +73,12 @@ export default function ChatPage() {
       }
     })
 
+    // Cleanup subscription when component unmounts
     return () => subscription.unsubscribe()
   }, [])
 
-  // Handle initial loading state
+  // Handle the initial page load state
+  // Shows loading indicator until we know if user is logged in or not
   useEffect(() => {
     if (!user) {
       setIsLoadingConversations(false)
@@ -82,14 +86,22 @@ export default function ChatPage() {
   }, [user])
 
   /**
-   * Fetches all conversations from the database
-   * Updates the conversations state and loading state
+   * Loads all conversations for the current user from the database
+   * 
+   * This function:
+   * 1. Shows a loading state while fetching
+   * 2. Makes an API request to get conversations
+   * 3. Updates the conversations list if successful
+   * 4. Shows an error message if something goes wrong
+   * 5. Hides the loading state when done
    */
   const fetchConversations = async () => {
     try {
       console.log('Fetching conversations for user:', user?.email)
-      setError(null)
-      setIsLoadingConversations(true)
+      setError(null)  // Clear any previous errors
+      setIsLoadingConversations(true)  // Show loading state
+      
+      // Get conversations from our API
       const response = await fetch('/api/conversations')
       console.log('Response:', response)
       
@@ -98,12 +110,12 @@ export default function ChatPage() {
       }
       
       const data = await response.json()
-      setConversations(data)
+      setConversations(data)  // Update conversations list with fetched data
     } catch (error) {
       console.error('Error fetching conversations:', error)
       setError('Failed to load conversations. Please try refreshing the page.')
     } finally {
-      setIsLoadingConversations(false)
+      setIsLoadingConversations(false)  // Hide loading state
     }
   }
 

@@ -8,6 +8,8 @@ A modern chat application built with Next.js, integrating Anthropic's AI capabil
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
 ![Anthropic](https://img.shields.io/badge/Anthropic-6B46C1?style=for-the-badge&logo=anthropic&logoColor=white)
 
+![](public/screenshot.png)
+
 - [Next.js](https://nextjs.org/) - React framework
 - [Anthropic AI SDK](https://www.anthropic.com/) - AI integration
 - [Supabase](https://supabase.com/) - Backend and database
@@ -15,41 +17,115 @@ A modern chat application built with Next.js, integrating Anthropic's AI capabil
 - [TypeScript](https://www.typescriptlang.org/) - Type safety
 - [Radix UI](https://www.radix-ui.com/) - UI components
 
-![](public/screenshot.png)
-
 ## ✨ Prerequisites
 
-Before you begin, ensure you have the following installed:
+Before you begin, you'll need to set up your development environment. Follow the instructions for your operating system:
 
-- Node.js (v18 or higher)
-- pnpm package manager (`npm install -g pnpm`)
-- A Supabase account (free) and new empty project (free)
-  - Specifically, get the `URL` and `anon public` key values from the Project Settings (see below for more details)
-- An Anthropic API key (may require credit card information)
+### Windows (WSL2)
 
-If you don't have Node.js and/or pnpm installed, you can also just clone or fork this repository and **open it in [GitHub Codespaces](https://github.com/codespaces) or [Replit](https://replit.com)** for an instantaneous setup !
+1. **Install WSL2 (Windows Subsystem for Linux)**
+
+   ```powershell
+   # Open PowerShell as Administrator and run:
+   wsl --install
+   ```
+
+   After installation, restart your computer.
+
+2. **Install Node.js on WSL**
+
+   ```bash
+   # Open WSL terminal and run:
+   curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+   sudo apt-get install -y nodejs
+   ```
+
+3. **Install Git on WSL**
+
+   ```bash
+   sudo apt-get update
+   sudo apt-get install git
+
+   # Configure Git
+   git config --global user.name "Your Name"
+   git config --global user.email "your.email@example.com"
+   ```
+
+4. **Install pnpm**
+   ```bash
+   curl -fsSL https://get.pnpm.io/install.sh | sh -
+   # Restart your terminal or run:
+   source ~/.bashrc
+   ```
+
+### macOS
+
+1. **Install Homebrew** (if not already installed)
+
+   ```bash
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+   ```
+
+2. **Install Node.js**
+
+   ```bash
+   brew install node@18
+   ```
+
+3. **Install Git**
+
+   ```bash
+   brew install git
+
+   # Configure Git
+   git config --global user.name "Your Name"
+   git config --global user.email "your.email@example.com"
+   ```
+
+4. **Install pnpm**
+   ```bash
+   brew install pnpm
+   ```
+
+### Verify Installation
+
+After installing the above tools, verify your setup:
+
+```bash
+node --version     # Should be v18 or higher
+pnpm --version     # Should be installed
+git --version      # Should be installed
+```
+
+### Required Accounts & API Keys
+
+You'll also need:
+
+1. **Supabase Account & Project**
+
+   - Sign up at [Supabase](https://supabase.com)
+   - Create a new project
+   - Get the `URL` and `anon public` key from Project Settings → Data API
+
+2. **Anthropic API Key**
+   - Sign up at [Anthropic Console](https://console.anthropic.com)
+   - Navigate to API Keys section
+   - Create a new API key
+   - **Note:** May require credit card information
 
 ## 🚀 Getting Started
-
-You can do everything below in your local machine, in [Github Codespaces](https://github.com/codespaces) or in [Replit](https://replit.com).
 
 1. Clone (or fork) the repository
 
 2. Install dependencies with `pnpm install`
 
-3. Copy the `.env.example` file to a new `.env` file.
+3. Copy the `.env.example` file to a new `.env` file, and fill in the values.
 
-4. Get your Anthropic API key from the [Anthropic Console Dashboard](https://console.anthropic.com/dashboard)
+4. Go to your Supabase Dashboard -> SQL Editor, paste the contents of the `setup.sql` file, and click "Run".
 
-5. Get your Supabase `URL` and `anon public` key (**not** `service_role secret` key) by going to your Supabase Dashboard -> Project -> Project Settings -> Data API.
+5. Go to your terminal and run `pnpm run dev`.
 
-6. Paste those values in your `.env` file. Make sure the values start and end with double quotes `"`.
-
-7. Go to your Supabase Dashboard -> SQL Editor, paste the contents of the `setup.sql` file, and click "Run".
-
-8. Go to your terminal and run `pnpm run dev`.
-
-9. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+6. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 ## 📁 Project Structure
 

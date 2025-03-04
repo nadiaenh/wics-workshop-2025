@@ -12,10 +12,12 @@ export const supabase = createClient<Database>(process.env.SUPABASE_URL!, proces
  * Represents a chat conversation in the database
  * @property {string} id - Unique identifier for the conversation
  * @property {string} created_at - ISO timestamp of when the conversation was created
+ * @property {string} user_id - UUID of the user who owns the conversation
  */
 export type Conversation = {
     id: string
     created_at: string
+    user_id: string
 }
 
 /**

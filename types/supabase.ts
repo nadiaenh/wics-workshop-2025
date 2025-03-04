@@ -7,14 +7,17 @@ export interface Database {
                 Row: {
                     id: string
                     created_at: string
+                    user_id: string
                 }
                 Insert: {
                     id?: string
                     created_at?: string
+                    user_id: string
                 }
                 Update: {
                     id?: string
                     created_at?: string
+                    user_id?: string
                 }
             }
             messages: {

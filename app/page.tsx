@@ -21,11 +21,21 @@ import { Button } from '../components/ui/button'
 import { Menu } from 'lucide-react'
 import { type Message } from 'ai'
 import { type Conversation } from '../lib/supabase'
+import { createBrowserClient } from '@supabase/ssr'
+import { type AuthError, type User, type AuthChangeEvent, type Session } from '@supabase/supabase-js'
 
 export default function ChatPage() {
   // UI State
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [isLoadingConversations, setIsLoadingConversations] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // Auth State
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+  const [user, setUser] = useState<User | null>(null)
 
   // Data State
   const [conversations, setConversations] = useState<Conversation[]>([])
@@ -47,10 +57,38 @@ export default function ChatPage() {
     },
   })
 
-  // Load conversations on component mount
+  // Load user data
   useEffect(() => {
-    fetchConversations()
-  }, [])
+    const getUser = async () => {
+      const { data: { user: currentUser }, error } = await supabase.auth.getUser()
+      if (error) {
+        console.error('Error fetching user:', error)
+        return
+      }
+      setUser(currentUser)
+    }
+    
+    getUser()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
+      setUser(session?.user ?? null)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [supabase.auth])
+
+  // Load conversations when component mounts or auth state changes
+  useEffect(() => {
+    if (user) {
+      fetchConversations()
+    } else {
+      // Clear conversations when logged out
+      setConversations([])
+      setCurrentConversation(null)
+      setError(null)
+      setIsLoadingConversations(false)
+    }
+  }, [user])
 
   /**
    * Fetches all conversations from the database
@@ -58,12 +96,22 @@ export default function ChatPage() {
    */
   const fetchConversations = async () => {
     try {
+      console.log('Fetching conversations for user:', user?.email)
+      setError(null)
+      setIsLoadingConversations(true)
       const response = await fetch('/api/conversations')
+      console.log('Response:', response)
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch conversations')
+      }
+      
       const data = await response.json()
       setConversations(data)
-      setIsLoadingConversations(false)
     } catch (error) {
       console.error('Error fetching conversations:', error)
+      setError('Failed to load conversations. Please try refreshing the page.')
+    } finally {
       setIsLoadingConversations(false)
     }
   }
@@ -74,6 +122,7 @@ export default function ChatPage() {
    */
   const createNewConversation = async () => {
     try {
+      console.log('Creating new conversation for user:', user?.email)
       const response = await fetch('/api/conversations', {
         method: 'POST',
         body: JSON.stringify({}),
@@ -109,6 +158,7 @@ export default function ChatPage() {
    */
   const saveMessage = async (conversationId: string, message: Message) => {
     try {
+      console.log('Saving message for user:', user?.email)
       await fetch(`/api/conversations/${conversationId}/messages`, {
         method: 'POST',
         body: JSON.stringify({

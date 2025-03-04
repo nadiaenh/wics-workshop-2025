@@ -19,113 +19,58 @@ A modern chat application built with Next.js, integrating Anthropic's AI capabil
 
 ## ✨ Prerequisites
 
-Before you begin, you'll need to set up your development environment. Follow the instructions for your operating system:
+This workshop assumes that you are somewhat familiar with git, React, JavaScript, HTML, CSS, and using terminal commands.
 
-### Windows (WSL2)
+You will also need to get:
 
-1. **Install WSL2 (Windows Subsystem for Linux)**
-
-   ```powershell
-   # Open PowerShell as Administrator and run:
-   wsl --install
-   ```
-
-   After installation, restart your computer.
-
-2. **Install Node.js on WSL**
-
-   ```bash
-   # Open WSL terminal and run:
-   curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-   sudo apt-get install -y nodejs
-   ```
-
-3. **Install Git on WSL**
-
-   ```bash
-   sudo apt-get update
-   sudo apt-get install git
-
-   # Configure Git
-   git config --global user.name "Your Name"
-   git config --global user.email "your.email@example.com"
-   ```
-
-4. **Install pnpm**
-   ```bash
-   curl -fsSL https://get.pnpm.io/install.sh | sh -
-   # Restart your terminal or run:
-   source ~/.bashrc
-   ```
-
-### macOS
-
-1. **Install Homebrew** (if not already installed)
-
-   ```bash
-   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-   ```
-
-2. **Install Node.js**
-
-   ```bash
-   brew install node@18
-   ```
-
-3. **Install Git**
-
-   ```bash
-   brew install git
-
-   # Configure Git
-   git config --global user.name "Your Name"
-   git config --global user.email "your.email@example.com"
-   ```
-
-4. **Install pnpm**
-   ```bash
-   brew install pnpm
-   ```
-
-### Verify Installation
-
-After installing the above tools, verify your setup:
-
-```bash
-node --version     # Should be v18 or higher
-pnpm --version     # Should be installed
-git --version      # Should be installed
-```
-
-### Required Accounts & API Keys
-
-You'll also need:
-
-1. **Supabase Account & Project**
+1. **Supabase Account & Project** (free)
 
    - Sign up at [Supabase](https://supabase.com)
    - Create a new project
    - Get the `URL` and `anon public` key from Project Settings → Data API
 
 2. **Anthropic API Key**
+
    - Sign up at [Anthropic Console](https://console.anthropic.com)
    - Navigate to API Keys section
    - Create a new API key
    - **Note:** May require credit card information
 
+3. **Vercel Account** (free)
+
+   - Sign up at [Vercel](https://vercel.com)
+   - Create a new project
+
 ## 🚀 Getting Started
 
-1. Clone (or fork) the repository
+1. Make sure you have Docker and Docker Compose installed on your system:
+   - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (free)
+   - [Docker Compose](https://docs.docker.com/compose/install/) (free)
+2. Clone (or fork) this repository
+3. Copy the `.env.example` file to a new file called `.env` and fill in your environment variables
+4. Start the development environment (it might take a couple of minutes to start initially):
+   ```bash
+   docker-compose up
+   ```
+5. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-2. Install dependencies with `pnpm install`
+The Docker setup includes hot reload, so any changes you make to the files will be reflected immediately in the browser.
 
-3. Copy the `.env.example` file to a new `.env` file, and fill in the values.
+## ✈️ Deploying to Vercel
 
-4. Go to your Supabase Dashboard -> SQL Editor, paste the contents of the `setup.sql` file, and click "Run".
+**Option 1: Terminal** (if you have `pnpm` and `Node.js` installed locally)
 
-5. Go to your terminal and run `pnpm run dev`.
+1. Install [Vercel CLI](https://vercel.com/docs/cli):
+   ```bash
+   npm install -g vercel
+   ```
+2. Run `vercel` and follow the instructions to deploy the application
+3. (If not automatic) Go to Vercel Dashboard, paste your `.env` in the Project Settings, then re-deploy
 
-6. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Option 2: Vercel Dashboard**
+
+1. Go to Vercel Dashboard and create a new project from your forked repository
+2. Go to Project Settings and paste your `.env` in the Environment Variables section
 
 ## 📁 Project Structure
 
@@ -236,3 +181,47 @@ To add new functionality:
 ## 📝 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🐳 Docker Development Setup
+
+This project includes a Docker setup optimized for local development. The configuration provides:
+
+- Hot reload support (changes to files are reflected immediately)
+- All development tools and dependencies
+- Automatic restart on crashes
+- Volume mounts for local development
+
+### Prerequisites
+
+- Docker
+- Docker Compose
+
+### Running with Docker
+
+1. Copy the `.env.example` file to `.env` and fill in your environment variables:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Start the development environment:
+
+   ```bash
+   docker-compose up
+   ```
+
+3. Access the application at [http://localhost:3000](http://localhost:3000)
+
+The application will automatically reload when you make changes to the source code.
+
+To stop the application:
+
+```bash
+docker-compose down
+```
+
+To rebuild the container (needed when dependencies change):
+
+```bash
+docker-compose up --build
+```

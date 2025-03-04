@@ -15,7 +15,7 @@ A modern chat application built with Next.js, integrating Anthropic's AI capabil
 - [TypeScript](https://www.typescriptlang.org/) - Type safety
 - [Radix UI](https://www.radix-ui.com/) - UI components
 
-![](public/capture.png)
+![](public/screenshot.png)
 
 ## ✨ Prerequisites
 
@@ -23,7 +23,8 @@ Before you begin, ensure you have the following installed:
 
 - Node.js (v18 or higher)
 - pnpm package manager (`npm install -g pnpm`)
-- A Supabase account and new empty project
+- A Supabase account (free) and new empty project (free)
+  - Specifically, get the `URL` and `anon public` key values from the Project Settings (see below for more details)
 - An Anthropic API key (may require credit card information)
 
 If you don't have Node.js and/or pnpm installed, you can also just clone or fork this repository and **open it in [GitHub Codespaces](https://github.com/codespaces) or [Replit](https://replit.com)** for an instantaneous setup !

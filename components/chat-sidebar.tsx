@@ -12,6 +12,7 @@ import { Button } from "./ui/button"
 import { PlusIcon, MessageSquare, Settings, Loader2, Trash2 } from "lucide-react"
 import type { Conversation } from "../lib/supabase"
 import { ScrollArea } from "./ui/scroll-area"
+import { useRouter } from "next/navigation"
 
 /**
  * Props for the ChatSidebar component
@@ -43,6 +44,8 @@ export default function ChatSidebar({
   onDeleteConversation,
   isLoading,
 }: ChatSidebarProps) {
+  const router = useRouter()
+
   /**
    * Groups conversations by their creation date
    * Uses locale-specific date formatting
@@ -121,7 +124,11 @@ export default function ChatSidebar({
 
       {/* Settings button at the bottom */}
       <div className="p-4 border-t border-border">
-        <Button variant="ghost" className="w-full justify-start gap-2">
+        <Button 
+          variant="ghost" 
+          className="w-full justify-start gap-2"
+          onClick={() => router.push('/settings')}
+        >
           <Settings size={16} />
           Settings
         </Button>

@@ -81,6 +81,27 @@ export default function ChatPage() {
     }
   }
 
+  const deleteConversation = async (conversation: Conversation) => {
+    try {
+      const response = await fetch(`/api/conversations/${conversation.id}`, {
+        method: 'DELETE',
+      })
+      
+      if (!response.ok) throw new Error('Failed to delete conversation')
+      
+      // Remove conversation from state
+      setConversations(conversations.filter(c => c.id !== conversation.id))
+      
+      // If the deleted conversation was the current one, clear messages and current conversation
+      if (currentConversation?.id === conversation.id) {
+        setCurrentConversation(null)
+        setMessages([])
+      }
+    } catch (error) {
+      console.error('Error deleting conversation:', error)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
@@ -127,6 +148,7 @@ export default function ChatPage() {
           currentConversation={currentConversation}
           onNewChat={createNewConversation}
           onSelectConversation={loadConversation}
+          onDeleteConversation={deleteConversation}
           isLoading={isLoadingConversations}
         />
       </div>

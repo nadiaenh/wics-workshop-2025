@@ -1,5 +1,5 @@
 import { Button } from "./ui/button"
-import { PlusIcon, MessageSquare, Settings, Loader2 } from "lucide-react"
+import { PlusIcon, MessageSquare, Settings, Loader2, Trash2 } from "lucide-react"
 import type { Conversation } from "../lib/supabase"
 import { ScrollArea } from "./ui/scroll-area"
 
@@ -8,6 +8,7 @@ interface ChatSidebarProps {
   currentConversation: Conversation | null
   onNewChat: () => void
   onSelectConversation: (conversation: Conversation) => void
+  onDeleteConversation: (conversation: Conversation) => void
   isLoading: boolean
 }
 
@@ -16,6 +17,7 @@ export default function ChatSidebar({
   currentConversation,
   onNewChat,
   onSelectConversation,
+  onDeleteConversation,
   isLoading,
 }: ChatSidebarProps) {
   // Group conversations by date
@@ -58,15 +60,27 @@ export default function ChatSidebar({
               <h2 className="text-xs font-semibold text-muted-foreground mb-2 px-2">{date}</h2>
               <div className="space-y-1">
                 {convos.map((conversation) => (
-                  <Button
-                    key={conversation.id}
-                    variant={currentConversation?.id === conversation.id ? "secondary" : "ghost"}
-                    className="w-full justify-start text-left font-normal truncate h-auto py-2"
-                    onClick={() => onSelectConversation(conversation)}
-                  >
-                    <MessageSquare size={16} className="mr-2 shrink-0" />
-                    <span className="truncate">Chat {new Date(conversation.created_at).toLocaleTimeString()}</span>
-                  </Button>
+                  <div key={conversation.id} className="flex items-center gap-2 px-2">
+                    <Button
+                      variant={currentConversation?.id === conversation.id ? "secondary" : "ghost"}
+                      className="flex-1 justify-start text-left font-normal truncate h-auto py-2"
+                      onClick={() => onSelectConversation(conversation)}
+                    >
+                      <MessageSquare size={16} className="mr-2 shrink-0" />
+                      <span className="truncate">Chat {new Date(conversation.created_at).toLocaleTimeString()}</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteConversation(conversation);
+                      }}
+                      className="shrink-0 p-0 w-8 h-8"
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
                 ))}
               </div>
             </div>

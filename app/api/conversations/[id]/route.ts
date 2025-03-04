@@ -1,7 +1,19 @@
 import { supabase } from "../../../../lib/supabase"
 import { NextResponse } from "next/server"
 
-// DELETE /api/conversations/[id]
+/**
+ * DELETE /api/conversations/[id]
+ * Deletes a specific conversation by its ID.
+ * 
+ * @param request - The incoming HTTP request
+ * @param context - Contains the conversation ID in the URL parameters
+ * @returns {Promise<NextResponse>} JSON response indicating success or failure
+ * 
+ * Example successful response:
+ * {
+ *   "success": true
+ * }
+ */
 export async function DELETE(
     request: Request,
     context: { params: Promise<{ id: string }> | { id: string } }

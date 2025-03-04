@@ -1,7 +1,16 @@
 import { supabase } from "../../../lib/supabase"
 import { NextResponse } from "next/server"
 
-// GET /api/conversations
+/**
+ * GET /api/conversations
+ * Retrieves all conversations with their associated messages.
+ * Messages are ordered by creation date in descending order (newest first).
+ * 
+ * @returns {Promise<NextResponse>} JSON response containing an array of conversations
+ * Each conversation includes:
+ * - Basic conversation metadata
+ * - Associated messages with their id, role, content, and timestamp
+ */
 export async function GET(request: Request) {
     try {
         const { data: conversations, error } = await supabase
@@ -26,7 +35,21 @@ export async function GET(request: Request) {
     }
 }
 
-// POST /api/conversations
+/**
+ * POST /api/conversations
+ * Creates a new conversation and optionally adds initial messages to it.
+ * 
+ * @param request - The incoming HTTP request
+ * @returns {Promise<NextResponse>} JSON response containing the created conversation
+ * 
+ * Example request body:
+ * {
+ *   "messages": [
+ *     { "role": "user", "content": "Hello!" },
+ *     { "role": "assistant", "content": "Hi there!" }
+ *   ]
+ * }
+ */
 export async function POST(request: Request) {
     try {
         const { messages } = await request.json()

@@ -8,6 +8,13 @@ A modern chat application built with Next.js, integrating Anthropic's AI capabil
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
 ![Anthropic](https://img.shields.io/badge/Anthropic-6B46C1?style=for-the-badge&logo=anthropic&logoColor=white)
 
+- [Next.js](https://nextjs.org/) - React framework
+- [Anthropic AI SDK](https://www.anthropic.com/) - AI integration
+- [Supabase](https://supabase.com/) - Backend and database
+- [Tailwind CSS](https://tailwindcss.com/) - Styling
+- [TypeScript](https://www.typescriptlang.org/) - Type safety
+- [Radix UI](https://www.radix-ui.com/) - UI components
+
 ![](public/capture.png)
 
 ## ✨ Prerequisites
@@ -18,6 +25,8 @@ Before you begin, ensure you have the following installed:
 - pnpm package manager (`npm install -g pnpm`)
 - A Supabase account and new empty project
 - An Anthropic API key (may require credit card information)
+
+If you don't have Node.js and/or pnpm installed, you can also just clone or fork this repository and **open it in [GitHub Codespaces](https://github.com/codespaces) or [Replit](https://replit.com)** for an instantaneous setup !
 
 ## 🚀 Getting Started
 
@@ -41,44 +50,86 @@ You can do everything below in your local machine, in [Github Codespaces](https:
 
 9. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## 🛠️ Tech Stack
-
-- [Next.js](https://nextjs.org/) - React framework
-- [Anthropic AI SDK](https://www.anthropic.com/) - AI integration
-- [Supabase](https://supabase.com/) - Backend and database
-- [Tailwind CSS](https://tailwindcss.com/) - Styling
-- [TypeScript](https://www.typescriptlang.org/) - Type safety
-- [Radix UI](https://www.radix-ui.com/) - UI components
-
 ## 📁 Project Structure
 
 ```bash
 chatgptnextjs/
-├── app/          # Next.js app directory - must be named app
-├── components/   # React components (button, chat-sidebar, etc.)
-├── lib/          # Utility functions (Supabase client, etc.)
-├── types/        # TypeScript types and interfaces
-├── public/           # Static files like images, icons, etc.
-├── setup.sql        # Database setup commands
-└── ...              # Configuration files
+├── app/                # Next.js app directory
+│   ├── api/           # API routes
+│   ├── layout.tsx     # Root layout
+│   ├── page.tsx       # Home page
+│   └── globals.css    # Global styles
+├── components/        # React components
+│   ├── ui/           # Reusable UI components
+│   ├── chat-area.tsx # Main chat interface
+│   └── chat-sidebar.tsx # Conversation sidebar
+├── lib/              # Utility functions and services
+│   ├── supabase.ts   # Supabase client configuration
+│   └── utils.ts      # Helper functions
+├── types/            # TypeScript types and interfaces
+├── public/          # Static files
+└── ...             # Configuration files
 ```
 
-## 🗺️ App Router Structure
+### 🗺️ Next.js App Router
 
-The project uses Next.js 13+ App Router, which follows a file-system based routing approach. Here's the current structure and guidelines for expansion:
+The project uses Next.js 13+ App Router with a file-system based routing approach:
 
 ```bash
 app/
-├── layout.tsx           # Root layout - shared UI and providers across the app
-├── page.tsx             # Home page (/) - landing page
-├── api/                 # API route handlers
-│   ├── chat/            # Chat-related endpoints
-│   │   └── route.ts        # Main chat API endpoint
-│   └── conversations/   # Conversation-related endpoints
-│       └── route.ts        # Conversation CRUD operations
+├── layout.tsx        # Root layout - shared UI for all pages
+├── page.tsx         # Home page (/) - main chat interface
+├── globals.css      # Global styles
+└── api/            # API route handlers
+    ├── chat/       # Chat endpoints
+    │   └── route.ts   # POST /api/chat - Stream AI responses
+    └── conversations/  # Conversation management
+        ├── route.ts   # GET & POST /api/conversations
+        ├── [id]/      # Dynamic route for specific conversations
+        │   ├── route.ts   # DELETE /api/conversations/[id]
+        │   └── messages/  # Messages for a specific conversation
+        │       └── route.ts # GET & POST /api/conversations/[id]/messages
 ```
 
-Further routes and pages can be added to the `app/` directory as needed.
+### 📍 API Endpoints
+
+- `POST /api/chat`
+
+  - Streams AI responses using Anthropic's Claude model
+  - Accepts chat messages in the request body
+
+- `GET /api/conversations`
+
+  - Retrieves all conversations with their messages
+  - Messages are ordered by creation date (newest first)
+
+- `POST /api/conversations`
+
+  - Creates a new conversation
+  - Optionally accepts initial messages
+
+- `DELETE /api/conversations/[id]`
+
+  - Deletes a specific conversation by ID
+
+- `GET /api/conversations/[id]/messages`
+
+  - Retrieves all messages for a specific conversation
+  - Messages are ordered chronologically
+
+- `POST /api/conversations/[id]/messages`
+  - Adds a new message to a specific conversation
+
+### ➕ Adding New Routes
+
+To add new functionality:
+
+1. Create a new directory in `app/` for the feature
+2. Add a `page.tsx` for UI components
+3. Add API routes in `app/api/` following the pattern:
+   - Use `route.ts` for HTTP method handlers
+   - Create directories for nested resources
+   - Use square brackets for dynamic segments (e.g., `[id]`)
 
 ## 📝 License
 

@@ -1,5 +1,18 @@
 'use client'
 
+/**
+ * Main Chat Page Component
+ * 
+ * This is the primary page component that handles the chat interface and conversation management.
+ * It integrates with the AI chat functionality and manages conversation state and persistence.
+ * 
+ * Features:
+ * - Real-time chat with AI using Anthropic's Claude
+ * - Conversation management (create, load, delete)
+ * - Message persistence in Supabase
+ * - Responsive sidebar for conversation history
+ */
+
 import { useState, useEffect } from 'react'
 import { useChat } from 'ai/react'
 import ChatSidebar from '../components/chat-sidebar'
@@ -10,25 +23,39 @@ import { type Message } from 'ai'
 import { type Conversation } from '../lib/supabase'
 
 export default function ChatPage() {
+  // UI State
   const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [conversations, setConversations] = useState<Conversation[]>([])
-  const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null)
   const [isLoadingConversations, setIsLoadingConversations] = useState(true)
 
-  const { messages, input, handleInputChange, handleSubmit: handleChatSubmit, setMessages, isLoading } = useChat({
+  // Data State
+  const [conversations, setConversations] = useState<Conversation[]>([])
+  const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null)
+
+  // AI Chat Hook
+  const { 
+    messages, 
+    input, 
+    handleInputChange, 
+    handleSubmit: handleChatSubmit, 
+    setMessages, 
+    isLoading 
+  } = useChat({
     onFinish: async (message) => {
       if (currentConversation) {
-        // Save the assistant's message to the database
         await saveMessage(currentConversation.id, message)
       }
     },
   })
 
-  // Fetch conversations on mount
+  // Load conversations on component mount
   useEffect(() => {
     fetchConversations()
   }, [])
 
+  /**
+   * Fetches all conversations from the database
+   * Updates the conversations state and loading state
+   */
   const fetchConversations = async () => {
     try {
       const response = await fetch('/api/conversations')
@@ -41,6 +68,10 @@ export default function ChatPage() {
     }
   }
 
+  /**
+   * Creates a new conversation in the database
+   * Sets it as the current conversation and clears the message history
+   */
   const createNewConversation = async () => {
     try {
       const response = await fetch('/api/conversations', {
@@ -56,9 +87,13 @@ export default function ChatPage() {
     }
   }
 
+  /**
+   * Loads a specific conversation and its messages
+   * @param conversation - The conversation to load
+   */
   const loadConversation = async (conversation: Conversation) => {
     try {
-      setCurrentConversation(conversation) // Set current conversation first
+      setCurrentConversation(conversation)
       const response = await fetch(`/api/conversations/${conversation.id}/messages`)
       const messages = await response.json()
       setMessages(messages)
@@ -67,6 +102,11 @@ export default function ChatPage() {
     }
   }
 
+  /**
+   * Saves a message to the database for a specific conversation
+   * @param conversationId - ID of the conversation
+   * @param message - The message to save
+   */
   const saveMessage = async (conversationId: string, message: Message) => {
     try {
       await fetch(`/api/conversations/${conversationId}/messages`, {
@@ -81,6 +121,11 @@ export default function ChatPage() {
     }
   }
 
+  /**
+   * Deletes a conversation and its messages from the database
+   * Updates the UI state accordingly
+   * @param conversation - The conversation to delete
+   */
   const deleteConversation = async (conversation: Conversation) => {
     try {
       const response = await fetch(`/api/conversations/${conversation.id}`, {
@@ -102,6 +147,11 @@ export default function ChatPage() {
     }
   }
 
+  /**
+   * Handles form submission for new messages
+   * Creates a new conversation if none exists
+   * Saves the message and triggers the AI response
+   */
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 

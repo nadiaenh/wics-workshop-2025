@@ -3,6 +3,20 @@ import { streamText } from "ai"
 
 export const maxDuration = 30
 
+/**
+ * Handles POST requests to the /api/chat endpoint.
+ * This endpoint processes chat messages and streams AI responses using the Anthropic Claude model.
+ * 
+ * @param req - The incoming HTTP request containing chat messages in the body
+ * @returns A streaming response containing the AI's response
+ * 
+ * Example request body:
+ * {
+ *   "messages": [
+ *     { "role": "user", "content": "Hello, how are you?" }
+ *   ]
+ * }
+ */
 export async function POST(req: Request) {
     const { messages } = await req.json()
 

@@ -1,27 +1,21 @@
-import { supabase } from "../../../../../lib/supabase"
 import { NextResponse } from "next/server"
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
 /**
  * GET /api/conversations/[id]/messages
+ * 
  * Retrieves all messages for a specific conversation.
- * Messages are ordered by creation date in ascending order (oldest first).
+ * Messages are ordered chronologically (oldest first).
  * 
- * @param request - The incoming HTTP request
- * @param context - Contains the conversation ID in the URL parameters
- * @returns {Promise<NextResponse>} JSON response containing an array of messages
+ * Authentication:
+ * - Requires a valid Supabase session cookie
+ * - Returns 401 if not authenticated
+ * - Only returns messages from conversations owned by the user
  * 
- * Example response:
- * [
- *   {
- *     "id": "123",
- *     "conversation_id": "456",
- *     "role": "user",
- *     "content": "Hello!",
- *     "created_at": "2024-03-04T04:38:00Z"
- *   }
- * ]
+ * @param request - The incoming request
+ * @param context - Contains the conversation ID parameter
+ * @returns {Promise<NextResponse>} JSON array of messages
  */
 export async function GET(
     request: Request,
@@ -37,10 +31,11 @@ export async function GET(
     }
 
     try {
+        // Initialize Supabase with server-side auth
         const cookieStore = cookies()
         const supabase = createServerClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            process.env.SUPABASE_URL!,
+            process.env.SUPABASE_KEY!,
             {
                 cookies: {
                     get(name: string) {
@@ -56,11 +51,28 @@ export async function GET(
             }
         )
 
+        // Verify user is authenticated
         const { data: { user }, error: userError } = await supabase.auth.getUser()
         if (userError || !user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
 
+        // Verify user owns the conversation
+        const { data: conversation, error: conversationError } = await supabase
+            .from("conversations")
+            .select("user_id")
+            .eq("id", conversationId)
+            .single()
+
+        if (conversationError || !conversation) {
+            return NextResponse.json({ error: "Conversation not found" }, { status: 404 })
+        }
+
+        if (conversation.user_id !== user.id) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+        }
+
+        // Fetch messages for the conversation
         const { data: messages, error } = await supabase
             .from("messages")
             .select("*")
@@ -81,17 +93,17 @@ export async function GET(
 
 /**
  * POST /api/conversations/[id]/messages
+ * 
  * Creates a new message in a specific conversation.
  * 
- * @param request - The incoming HTTP request containing the message data
- * @param context - Contains the conversation ID in the URL parameters
- * @returns {Promise<NextResponse>} JSON response containing the created message
+ * Authentication:
+ * - Requires a valid Supabase session cookie
+ * - Returns 401 if not authenticated
+ * - Only allows posting to conversations owned by the user
  * 
- * Example request body:
- * {
- *   "role": "user",
- *   "content": "Hello, how are you?"
- * }
+ * @param request - Contains the message data (role and content)
+ * @param context - Contains the conversation ID parameter
+ * @returns {Promise<NextResponse>} JSON object of the created message
  */
 export async function POST(
     request: Request,
@@ -107,10 +119,11 @@ export async function POST(
     }
 
     try {
+        // Initialize Supabase with server-side auth
         const cookieStore = cookies()
         const supabase = createServerClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            process.env.SUPABASE_URL!,
+            process.env.SUPABASE_KEY!,
             {
                 cookies: {
                     get(name: string) {
@@ -126,13 +139,29 @@ export async function POST(
             }
         )
 
+        // Verify user is authenticated
         const { data: { user }, error: userError } = await supabase.auth.getUser()
         if (userError || !user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
 
-        const { role, content } = await request.json()
+        // Verify user owns the conversation
+        const { data: conversation, error: conversationError } = await supabase
+            .from("conversations")
+            .select("user_id")
+            .eq("id", conversationId)
+            .single()
 
+        if (conversationError || !conversation) {
+            return NextResponse.json({ error: "Conversation not found" }, { status: 404 })
+        }
+
+        if (conversation.user_id !== user.id) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+        }
+
+        // Create the new message
+        const { role, content } = await request.json()
         const { data: message, error } = await supabase
             .from("messages")
             .insert([

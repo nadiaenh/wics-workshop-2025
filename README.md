@@ -55,81 +55,106 @@ You can do everything below in your local machine, in [Github Codespaces](https:
 ```bash
 chatgptnextjs/
 ├── app/                # Next.js app directory
-│   ├── api/           # API routes
-│   ├── layout.tsx     # Root layout
-│   ├── page.tsx       # Home page
-│   └── globals.css    # Global styles
+│   ├── api/           # API route handlers
+│   │   ├── chat/      # AI chat endpoints
+│   │   └── conversations/ # Conversation management
+│   ├── auth/          # Authentication pages and callback
+│   ├── layout.tsx     # Root layout with auth and theme
+│   └── page.tsx       # Main chat interface
 ├── components/        # React components
 │   ├── ui/           # Reusable UI components
 │   ├── chat-area.tsx # Main chat interface
 │   └── chat-sidebar.tsx # Conversation sidebar
-├── lib/              # Utility functions and services
-│   ├── supabase.ts   # Supabase client configuration
-│   └── utils.ts      # Helper functions
-├── types/            # TypeScript types and interfaces
-├── public/          # Static files
-└── ...             # Configuration files
+├── lib/              # Shared utilities
+│   └── supabase.ts   # Supabase client and types
+└── types/            # TypeScript type definitions
 ```
 
 ### 🗺️ Next.js App Router
 
-The project uses Next.js 13+ App Router with a file-system based routing approach:
+The project uses Next.js 14 App Router with server-side authentication:
 
 ```bash
 app/
-├── layout.tsx        # Root layout - shared UI for all pages
-├── page.tsx         # Home page (/) - main chat interface
-├── globals.css      # Global styles
-└── api/            # API route handlers
-    ├── chat/       # Chat endpoints
-    │   └── route.ts   # POST /api/chat - Stream AI responses
+├── layout.tsx        # Root layout with Supabase auth
+├── page.tsx         # Main chat interface
+├── auth/           # Authentication routes
+│   ├── callback/   # OAuth callback handling
+│   │   └── route.ts  # GET /auth/callback
+│   └── layout.tsx  # Auth pages layout
+└── api/           # API route handlers
+    ├── chat/      # AI chat endpoints
+    │   └── route.ts  # POST /api/chat - Authenticated AI responses
     └── conversations/  # Conversation management
         ├── route.ts   # GET & POST /api/conversations
-        ├── [id]/      # Dynamic route for specific conversations
-        │   ├── route.ts   # DELETE /api/conversations/[id]
-        │   └── messages/  # Messages for a specific conversation
-        │       └── route.ts # GET & POST /api/conversations/[id]/messages
+        └── [id]/     # Specific conversation routes
+            ├── route.ts   # DELETE /api/conversations/[id]
+            └── messages/  # Message management
+                └── route.ts # GET & POST messages
 ```
 
 ### 📍 API Endpoints
 
+- `GET /auth/callback`
+
+  - Handles OAuth callback from Supabase
+  - Exchanges code for session
+  - Redirects to home or error page
+
 - `POST /api/chat`
 
-  - Streams AI responses using Anthropic's Claude model
-  - Accepts chat messages in the request body
+  - Requires authentication
+  - Streams AI responses using Claude
+  - Accepts chat messages in request body
 
 - `GET /api/conversations`
 
-  - Retrieves all conversations with their messages
-  - Messages are ordered by creation date (newest first)
+  - Requires authentication
+  - Returns user's conversations with messages
+  - Ordered by creation date (newest first)
 
 - `POST /api/conversations`
 
-  - Creates a new conversation
+  - Requires authentication
+  - Creates conversation for current user
   - Optionally accepts initial messages
 
 - `DELETE /api/conversations/[id]`
 
-  - Deletes a specific conversation by ID
+  - Requires authentication
+  - Only deletes if user owns conversation
+  - Removes conversation and all messages
 
 - `GET /api/conversations/[id]/messages`
 
-  - Retrieves all messages for a specific conversation
-  - Messages are ordered chronologically
+  - Requires authentication
+  - Only returns if user owns conversation
+  - Messages ordered chronologically
 
 - `POST /api/conversations/[id]/messages`
-  - Adds a new message to a specific conversation
+  - Requires authentication
+  - Only posts if user owns conversation
+  - Creates new message in conversation
 
 ### ➕ Adding New Routes
 
 To add new functionality:
 
-1. Create a new directory in `app/` for the feature
-2. Add a `page.tsx` for UI components
-3. Add API routes in `app/api/` following the pattern:
-   - Use `route.ts` for HTTP method handlers
-   - Create directories for nested resources
-   - Use square brackets for dynamic segments (e.g., `[id]`)
+1. Create route handler in `app/api/`:
+
+   - Use `route.ts` for HTTP methods
+   - Add server-side authentication
+   - Include proper error handling
+
+2. Add UI components in `app/`:
+
+   - Create new page or component
+   - Use client-side auth hooks if needed
+   - Follow existing patterns for data fetching
+
+3. Update types in `types/`:
+   - Add new type definitions
+   - Update existing types if needed
 
 ## 📝 License
 

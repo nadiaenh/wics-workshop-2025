@@ -1,25 +1,26 @@
-import { supabase } from "../../../lib/supabase"
 import { NextResponse } from "next/server"
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
 /**
  * GET /api/conversations
- * Retrieves all conversations with their associated messages.
- * Messages are ordered by creation date in descending order (newest first).
- * Only returns conversations owned by the authenticated user.
  * 
- * @returns {Promise<NextResponse>} JSON response containing an array of conversations
- * Each conversation includes:
- * - Basic conversation metadata
- * - Associated messages with their id, role, content, and timestamp
+ * Retrieves all conversations for the currently logged-in user.
+ * Each conversation includes its messages, ordered by creation date.
+ * 
+ * Authentication:
+ * - Requires a valid Supabase session cookie
+ * - Returns 401 if not authenticated
+ * 
+ * @returns {Promise<NextResponse>} JSON array of conversations with their messages
  */
 export async function GET(request: Request) {
     try {
+        // Initialize Supabase with server-side auth
         const cookieStore = cookies()
         const supabase = createServerClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            process.env.SUPABASE_URL!,
+            process.env.SUPABASE_KEY!,
             {
                 cookies: {
                     get(name: string) {
@@ -35,11 +36,13 @@ export async function GET(request: Request) {
             }
         )
 
+        // Verify user is authenticated
         const { data: { user }, error: userError } = await supabase.auth.getUser()
         if (userError || !user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
 
+        // Fetch conversations with their messages
         const { data: conversations, error } = await supabase
             .from("conversations")
             .select(`
@@ -65,26 +68,24 @@ export async function GET(request: Request) {
 
 /**
  * POST /api/conversations
- * Creates a new conversation and optionally adds initial messages to it.
- * The conversation is automatically associated with the authenticated user.
  * 
- * @param request - The incoming HTTP request
- * @returns {Promise<NextResponse>} JSON response containing the created conversation
+ * Creates a new conversation for the currently logged-in user.
+ * Optionally adds initial messages to the conversation.
  * 
- * Example request body:
- * {
- *   "messages": [
- *     { "role": "user", "content": "Hello!" },
- *     { "role": "assistant", "content": "Hi there!" }
- *   ]
- * }
+ * Authentication:
+ * - Requires a valid Supabase session cookie
+ * - Returns 401 if not authenticated
+ * 
+ * @param request - Request body can include an array of initial messages
+ * @returns {Promise<NextResponse>} JSON object of the created conversation
  */
 export async function POST(request: Request) {
     try {
+        // Initialize Supabase with server-side auth
         const cookieStore = cookies()
         const supabase = createServerClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            process.env.SUPABASE_URL!,
+            process.env.SUPABASE_KEY!,
             {
                 cookies: {
                     get(name: string) {
@@ -100,6 +101,7 @@ export async function POST(request: Request) {
             }
         )
 
+        // Verify user is authenticated
         const { data: { user }, error: userError } = await supabase.auth.getUser()
         if (userError || !user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -107,7 +109,7 @@ export async function POST(request: Request) {
 
         const { messages } = await request.json()
 
-        // Create conversation with user_id
+        // Create conversation linked to user
         const { data: conversation, error: conversationError } = await supabase
             .from("conversations")
             .insert([{ user_id: user.id }])
@@ -116,6 +118,7 @@ export async function POST(request: Request) {
 
         if (conversationError) throw conversationError
 
+        // Add initial messages if provided
         if (messages && messages.length > 0) {
             const formattedMessages = messages.map((message: any) => ({
                 conversation_id: conversation.id,
@@ -123,7 +126,9 @@ export async function POST(request: Request) {
                 content: message.content,
             }))
 
-            const { error: messagesError } = await supabase.from("messages").insert(formattedMessages)
+            const { error: messagesError } = await supabase
+                .from("messages")
+                .insert(formattedMessages)
 
             if (messagesError) throw messagesError
         }

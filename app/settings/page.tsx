@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { createBrowserClient } from "@supabase/ssr"
 import { useRouter } from "next/navigation"
-import { MoonIcon, SunIcon } from "lucide-react"
+import { MoonIcon, SunIcon, ArrowLeft } from "lucide-react"
 import { useTheme } from "next-themes"
 
 export default function SettingsPage() {
@@ -23,7 +23,17 @@ export default function SettingsPage() {
 
   return (
     <div className="container max-w-2xl mx-auto p-6 space-y-8">
-      <h1 className="text-3xl font-bold">Settings</h1>
+      <div className="flex items-center gap-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => router.push('/')}
+          className="hover:bg-accent"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <h1 className="text-3xl font-bold">Settings</h1>
+      </div>
       
       <div className="space-y-6">
         <div className="flex items-center justify-between p-4 border rounded-lg">

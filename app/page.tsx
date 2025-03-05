@@ -26,7 +26,7 @@ import { type AuthError, type User, type AuthChangeEvent, type Session } from '@
 
 export default function ChatPage() {
   // State for UI elements
-  const [sidebarOpen, setSidebarOpen] = useState(true)  // Controls sidebar visibility on mobile
+  const [sidebarOpen, setSidebarOpen] = useState(false)  // Start with closed sidebar on mobile
   const [isLoadingConversations, setIsLoadingConversations] = useState(true)  // Shows loading state while fetching conversations
   const [error, setError] = useState<string | null>(null)  // Stores error messages to display to the user
 
@@ -97,13 +97,12 @@ export default function ChatPage() {
    */
   const fetchConversations = async () => {
     try {
-      console.log('Fetching conversations for user:', user?.email)
       setError(null)  // Clear any previous errors
       setIsLoadingConversations(true)  // Show loading state
       
       // Get conversations from our API
       const response = await fetch('/api/conversations')
-      console.log('Response:', response)
+      console.log('Response status:', response.status)
       
       if (!response.ok) {
         throw new Error('Failed to fetch conversations')
@@ -149,6 +148,8 @@ export default function ChatPage() {
       const response = await fetch(`/api/conversations/${conversation.id}/messages`)
       const messages = await response.json()
       setMessages(messages)
+      // Close sidebar on mobile after selecting a conversation
+      setSidebarOpen(false)
     } catch (error) {
       console.error('Error loading conversation:', error)
     }
@@ -181,6 +182,8 @@ export default function ChatPage() {
    */
   const deleteConversation = async (conversation: Conversation) => {
     try {
+      console.log('Deleting conversation:', conversation.id)
+      
       const response = await fetch(`/api/conversations/${conversation.id}`, {
         method: 'DELETE',
       })
@@ -231,21 +234,38 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex h-screen bg-background">
-      {/* Mobile sidebar toggle */}
+    <div className="flex h-screen bg-background overflow-hidden relative">
+      {/* Mobile sidebar overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Mobile menu button */}
       <Button 
         variant="ghost" 
         size="icon" 
         className="fixed top-4 left-4 z-50 md:hidden"
         onClick={() => setSidebarOpen(!sidebarOpen)}
       >
-        <Menu />
+        <Menu className="h-6 w-6" />
       </Button>
 
       {/* Sidebar */}
-      <div className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
-                      md:translate-x-0 transition-transform duration-300 ease-in-out
-                      fixed md:relative z-40 w-64 h-full border-r border-border bg-background`}>
+      <div 
+        className={`
+          fixed md:relative z-40 
+          w-[280px] h-full 
+          transform transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
+          md:translate-x-0
+          border-r border-border 
+          bg-background
+          overflow-y-auto
+        `}
+      >
         <ChatSidebar 
           conversations={conversations}
           currentConversation={currentConversation}
@@ -258,8 +278,8 @@ export default function ChatPage() {
 
       {/* Main chat area */}
       <div className="flex-1 flex flex-col h-full overflow-hidden">
-        <ChatArea 
-          messages={messages} 
+        <ChatArea
+          messages={messages}
           input={input}
           handleInputChange={handleInputChange}
           handleSubmit={handleSubmit}

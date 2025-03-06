@@ -32,34 +32,32 @@ You will also need to get:
 
    - Sign up at [Supabase](https://supabase.com)
    - Create a new project
-   - Get the `URL` and `anon public` key from Project Settings → Data API
 
-2. **Anthropic API Key**
+2. **Anthropic API Key** (optional - requires credit card information)
 
    - Sign up at [Anthropic Console](https://console.anthropic.com)
-   - Navigate to API Keys section
-   - Create a new API key
-   - **Note:** May require credit card information
 
 3. **Vercel Account** (free)
 
    - Sign up at [Vercel](https://vercel.com)
-   - Create a new project
+
+4. **Docker Desktop** (free)
+
+   - Download and install [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+   - Make sure it also installed [Docker Compose](https://docs.docker.com/compose/install/)
 
 ## 🚀 Getting Started
 
-1. Make sure you have Docker and Docker Compose installed on your system:
-   - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (free)
-   - [Docker Compose](https://docs.docker.com/compose/install/) (free)
-2. Clone (or fork) this repository
-3. Copy the `.env.example` file to a new file called `.env` and fill in your environment variables
-4. Start the development environment (it might take a couple of minutes to start initially):
-   ```bash
-   docker-compose up
-   ```
-5. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. Clone (or fork) this repository
+2. Copy the `.env.example` file to a new file called `.env` and fill in your environment variables from Supabase and (optionally) Anthropic.
+3. Go to **Supabase > SQL Editor** and paste the contents of `setup.sql` into the query editor. Run the query. Verify that it says "Success. No rows returned".
+4. **Disable email verification** by going to **Supabase > Authentication > Sign In / Up > Email >** and disable the **"Confirm email"** toggle, and click Save.
+5. In your terminal, run `docker-compose up` and wait for the containers to start. If you get an error that says `Is the docker daemon running?`, open the Docker Desktop app manually and try again.
+6. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 The Docker setup includes hot reload, so any changes you make to the files will be reflected immediately in the browser.
+
+![](public/supabase-keys.png)
 
 ## 📁 Project Structure
 

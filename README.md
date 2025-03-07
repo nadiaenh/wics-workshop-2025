@@ -1,6 +1,6 @@
-# 🤖 ChatGPT Next.js Application
+# 🤖 WiCS Workshop 2025 - ChatGPT Clone
 
-A modern chat application built with Next.js, integrating Anthropic's AI capabilities and Supabase for data storage.
+A modern AI chat application built with **Next.js v14**, integrating Anthropic's AI capabilities and Supabase for data storage and authentication.
 
 ![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
@@ -17,14 +17,14 @@ A modern chat application built with Next.js, integrating Anthropic's AI capabil
 - [🚀 Getting Started](#-getting-started)
 - [📁 Project Structure](#-project-structure)
 - [📍 API Endpoints](#-api-endpoints)
-- [➕ Adding New Routes](#-adding-new-routes)
+- [➕ Adding New Functionality](#-adding-new-functionality)
 - [✈️ Deploying to Vercel](#-deploying-to-vercel)
 - [🌀 Deploying to a custom domain](#-deploying-to-a-custom-domain)
 - [📝 License](#-license)
 
 ## ✨ Prerequisites
 
-This workshop assumes that you are somewhat familiar with git, React, JavaScript, HTML, CSS, and using terminal commands.
+This workshop assumes that you are somewhat familiar with **git**, React, JavaScript, HTML, CSS, and using terminal commands.
 
 You will also need to get:
 
@@ -33,31 +33,54 @@ You will also need to get:
    - Sign up at [Supabase](https://supabase.com)
    - Create a new project
 
-2. **Anthropic API Key** (optional - requires credit card information)
+2. **Anthropic API Key** (paid - you won't be able to receive AI responses without this)
 
    - Sign up at [Anthropic Console](https://console.anthropic.com)
 
-3. **Vercel Account** (free)
+3. **Vercel Account** (free - only required if you want to deploy the app)
 
    - Sign up at [Vercel](https://vercel.com)
 
-4. **Docker Desktop** (free)
+4. **Namecheap Account** (free - only required if you want a custom domain)
 
-   - Download and install [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-   - Make sure it also installed [Docker Compose](https://docs.docker.com/compose/install/)
+   - Sign up for the [GitHub Student Developer Pack](https://education.github.com/pack) to get a free `.me` domain
+   - Sign up for a [Namecheap](https://namecheap.com) account
+
+![](public/supabase-keys.png)
 
 ## 🚀 Getting Started
 
-1. Clone (or fork) this repository
-2. Copy the `.env.example` file to a new file called `.env` and fill in your environment variables from Supabase and (optionally) Anthropic.
-3. Go to **Supabase > SQL Editor** and paste the contents of `setup.sql` into the query editor. Run the query. Verify that it says "Success. No rows returned".
-4. **Disable email verification** by going to **Supabase > Authentication > Sign In / Up > Email >** and disable the **"Confirm email"** toggle, and click Save.
+**Database setup:**
+
+1. Go to **Supabase > SQL Editor** and paste the contents of `setup.sql` into the query editor. Run the query. Verify that it says "Success. No rows returned".
+2. Disable email verification (**important!**) by going to **Supabase > Authentication > Sign In / Up > Email >** and disable the **"Confirm email"** toggle, and click Save.
+
+**Option 1: Run the project locally** (fastest and best development experience)
+
+1. Download [Node.js v20.18.3 (LTS)](https://nodejs.org/en/download) with `pnpm` by running the commands on that page for your specific OS. **Verify** that running `node -v` and `pnpm -v` returns version numbers.
+2. Clone this repository.
+3. Copy the `.env.example` file to a new file called `.env` and fill in your environment variables from Supabase and Anthropic.
+4. Run `pnpm install` to install the dependencies
+5. Run `pnpm run dev` to start the development server
+
+**Option 2: Run the project with Docker** (if you can't make Option 1 work)
+
+1. Clone this repository.
+2. Copy the `.env.example` file to a new file called `.env` and fill in your environment variables from Supabase and Anthropic.
+3. Download and install [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+4. Make sure it also installed [Docker Compose](https://docs.docker.com/compose/install/)
 5. In your terminal, run `docker-compose up` and wait for the containers to start. If you get an error that says `Is the docker daemon running?`, open the Docker Desktop app manually and try again.
 6. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+7. If you need to run more terminal commands, open a new terminal, get your container ID by running `docker ps`, and then run `docker exec -it <container_id> bash` to get a bash shell.
 
-The Docker setup includes hot reload, so any changes you make to the files will be reflected immediately in the browser.
+**Option 3: Run the project in an online IDE** (pages will load very slowly)
 
-![](public/supabase-keys.png)
+1. Create a public fork of this repository.
+2. Go to [Repl.it](https://replit.com).
+3. Create a new Replit project by importing your public fork of this repository.
+4. Set the run command to `pnpm run dev` and click _Confirm_.
+5. Copy the `.env.example` file to a new file called `.env` and fill in your environment variables from Supabase and Anthropic.
+6. Click the green "Run" button.
 
 ## 📁 Project Structure
 
@@ -86,50 +109,28 @@ chatgptnextjs/
 
 ### 📍 API Endpoints
 
-All endpoints require Supabase authentication and return appropriate HTTP status codes (401, 404, 500) on errors.
+All endpoints require Supabase server-side authentication and return appropriate [HTTP status codes](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) on errors.
 
-- `POST /api/chat`
+- `POST /api/chat` makes a request to Anthropic's API to generate a response in a "streamed" format.
 
-  - Streams AI responses using Claude-3-Sonnet
-  - Body: `{ messages: Message[] }`
+- `GET /api/conversations` lists all conversations that exist in the database for the current user, sorted by newest first.
 
-- `GET /api/conversations`
+- `POST /api/conversations` creates a new conversation in the database for the current user.
 
-  - Lists user's conversations with nested messages
-  - Sorted by newest first
+- `DELETE /api/conversations/[id]` deletes a specific conversation from the database.
 
-- `POST /api/conversations`
+- `GET /api/conversations/[id]/messages` gets all messages from the database for a specific conversation.
 
-  - Creates new conversation
-  - Optional body: `{ messages: Message[] }`
+- `POST /api/conversations/[id]/messages` creates a new message in the database for a specific conversation.
 
-- `DELETE /api/conversations/[id]`
+### ➕ Adding New Functionality
 
-  - Deletes conversation and its messages
-  - Returns `{ success: true }`
+Some ways you can add new functionality to this app:
 
-- `GET /api/conversations/[id]/messages`
-
-  - Lists messages in conversation
-  - Sorted chronologically
-
-- `POST /api/conversations/[id]/messages`
-  - Adds message to conversation
-  - Body: `{ role: string, content: string }`
-
-### ➕ Adding New Routes
-
-To add new functionality:
-
-1. Create route handler in `app/api/`:
-
-   - Create a `route.ts` file for HTTP methods
-   - Follow the existing patterns for server-side authentication and error handling
-
-2. Add pages and UI components in `components/`:
-
-   - Create new page `page.tsx` or component `my-component.tsx`
-   - Follow existing patterns for client-side auth hooks and data fetching if needed
+1. **New page:** Check out http://localhost:3000/about for an example of how to add a new page to this app.
+2. **New API endpoint:** Create a new API endpoint by following the same patterns as the existing `route.ts` files in `app/api/`. For example, if you create a new GET endpoint in `app/api/greeting/morning/route.ts`, you can access it with `fetch('/api/greeting/morning')`.
+3. **Small UI elements** like buttons, checkboxes, etc. are added using the **shadcn** library. All you have to do is run `pnpm dlx shadcn@latest add <component-name>`, a list of all existing **shadcn** components can be found [here](https://ui.shadcn.com/docs/components/accordion).
+4. **Large, custom UI components** like entire forms or pages are added in `components/` and then imported in a `page.tsx` or other component file. For example, look at `app/components/chat-sidebar.tsx`.
 
 ## ✈️ Deploying to Vercel
 

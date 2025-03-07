@@ -22,7 +22,7 @@ ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can only see their own conversations"
 ON conversations
 FOR ALL
-USING (auth.uid() = user_id);
+USING ((select auth.uid()) = user_id);
 
 -- Create policy to restrict message access through conversation ownership
 CREATE POLICY "Users can only access messages of their conversations"
@@ -32,7 +32,7 @@ USING (
   EXISTS (
     SELECT 1 FROM conversations 
     WHERE conversations.id = messages.conversation_id 
-    AND conversations.user_id = auth.uid()
+    AND conversations.user_id = (select auth.uid())
   )
 );
 
@@ -44,6 +44,11 @@ WITH CHECK (
   EXISTS (
     SELECT 1 FROM conversations 
     WHERE conversations.id = messages.conversation_id 
-    AND conversations.user_id = auth.uid()
+    AND conversations.user_id = (select auth.uid())
   )
 );
+
+-- Create indexes for better query performance
+CREATE INDEX idx_conversations_user_id ON conversations(user_id);
+CREATE INDEX idx_messages_conversation_id ON messages(conversation_id);
+CREATE INDEX idx_messages_created_at ON messages(created_at DESC);

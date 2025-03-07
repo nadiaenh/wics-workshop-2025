@@ -74,7 +74,6 @@ You will also need to get:
 4. Make sure it also installed [Docker Compose](https://docs.docker.com/compose/install/)
 5. In your terminal, run `docker-compose up` and wait for the containers to start. If you get an error that says `Is the docker daemon running?`, open the Docker Desktop app manually and try again.
 6. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-7. If you need to run more terminal commands, open a new terminal, get your container ID by running `docker ps`, and then run `docker exec -it <container_id> bash` to get a bash shell.
 
 **Option 3: Run the project in an online IDE** (pages will load very slowly)
 

@@ -57,11 +57,14 @@ You will also need to get:
 
 **Option 1: Run the project locally** (fastest and best development experience)
 
-1. Download [Node.js v20.18.3 (LTS)](https://nodejs.org/en/download) with `pnpm` by running the commands on that page for your specific OS. **Verify** that running `node -v` and `pnpm -v` returns version numbers.
-2. Clone this repository.
-3. Copy the `.env.example` file to a new file called `.env` and fill in your environment variables from Supabase and Anthropic.
-4. Run `pnpm install` to install the dependencies
-5. Run `pnpm run dev` to start the development server
+1. Download and run the [Node.js v20.18.3 (LTS)](https://nodejs.org/en/download) installer (see image below). Your OS and architecture should be detected automatically by the page.
+2. Install `pnpm` by running `npm install -g pnpm` in your terminal. **Verify** that running `node -v` and `pnpm -v` returns version numbers.
+3. Clone this repository.
+4. Copy the `.env.example` file to a new file called `.env` and fill in your environment variables from Supabase and Anthropic.
+5. Run `pnpm install` to install the dependencies
+6. Run `pnpm run dev` to start the development server
+
+![](public/download-node.png)
 
 **Option 2: Run the project with Docker** (if you can't make Option 1 work)
 

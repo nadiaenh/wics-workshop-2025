@@ -3,14 +3,14 @@
 /**
  * Main Chat Page Component
  * 
- * This is the primary page component that handles the chat interface and conversation management.
- * It integrates with the AI chat functionality and manages conversation state and persistence.
+ * This is where users can chat with the AI assistant. The page has two main parts:
+ * 1. A sidebar that shows all your past conversations
+ * 2. The main chat area where you talk with the AI
  * 
- * Features:
- * - Real-time chat with AI using Anthropic's Claude
- * - Conversation management (create, load, delete)
- * - Message persistence in Supabase
- * - Responsive sidebar for conversation history
+ * Key Features:
+ * - Chat with AI using Anthropic's Claude
+ * - Save and load past conversations
+ * - Works on both mobile and desktop
  */
 
 import { useState, useEffect } from 'react'
@@ -23,34 +23,84 @@ import { type Message } from 'ai'
 import { type Conversation } from '../lib/supabase'
 import { createBrowserClient } from '@supabase/ssr'
 import { type AuthError, type User, type AuthChangeEvent, type Session } from '@supabase/supabase-js'
+import { toast } from 'sonner'
+
+// Common style for error toasts
+const errorToastStyle = {
+  backgroundColor: 'rgb(255, 235, 235)',
+  border: '1px solid rgb(255, 180, 180)',
+  color: 'rgb(180, 0, 0)'
+}
+
+/**
+ * Shows error messages to the user as a toast notification
+ * @param error - The error that occurred
+ */
+const handleChatError = (error: Error) => {
+  if (!error?.message) return
+
+  try {
+    // Try to parse the error message as JSON
+    const errorData = JSON.parse(error.message)
+    
+    // Show specific message for missing API key
+    if (errorData.code === 'MISSING_API_KEY') {
+      toast.error('API Key Missing', {
+        description: 'The Anthropic API key is not configured. Please set up your API key to use the chat functionality.',
+        duration: 10000,
+        style: errorToastStyle
+      })
+      return
+    }
+    
+    // Show generic error message for other errors
+    toast.error('Error', {
+      description: errorData.error || 'An error occurred while processing your request.',
+      duration: 10000,
+      style: errorToastStyle
+    })
+  } catch {
+    // If we can't parse the error as JSON, just show the raw message
+    toast.error('Error', {
+      description: error.message,
+      duration: 10000,
+      style: errorToastStyle
+    })
+  }
+}
 
 export default function ChatPage() {
-  // State for UI elements
-  const [sidebarOpen, setSidebarOpen] = useState(false)  // Start with closed sidebar on mobile
-  const [isLoadingConversations, setIsLoadingConversations] = useState(true)  // Shows loading state while fetching conversations
-  const [error, setError] = useState<string | null>(null)  // Stores error messages to display to the user
-
-  // Authentication setup and state
+  // --- State Management ---
+  
+  // UI State
+  const [sidebarOpen, setSidebarOpen] = useState(false)          // Controls mobile sidebar visibility
+  const [isLoadingConversations, setIsLoadingConversations] = useState(true)  // Shows loading spinner while getting conversations
+  const [error, setError] = useState<string | null>(null)        // Stores any error messages
+  
+  // User State
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
-  const [user, setUser] = useState<User | null>(null)  // Stores the currently logged in user
+  const [user, setUser] = useState<User | null>(null)            // Currently logged in user
+  
+  // Chat State
+  const [conversations, setConversations] = useState<Conversation[]>([])        // List of all past conversations
+  const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null)  // The active chat
 
-  // State for chat data
-  const [conversations, setConversations] = useState<Conversation[]>([])  // List of all chat conversations
-  const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null)  // The active conversation
-
-  // Setup AI chat functionality
+  // Setup chat functionality using the vercel/ai library
   const { 
-    messages,  // Array of messages in the current chat
-    input,     // Current text in the input field
+    messages,            // List of messages in the current chat
+    input,              // Text currently in the input box
     handleInputChange,  // Function to update input as user types
     handleSubmit: handleChatSubmit,  // Function to send message to AI
-    setMessages,  // Function to update message history
-    isLoading    // Whether AI is currently generating a response
+    setMessages,        // Function to update the message list
+    isLoading          // True while AI is generating a response
   } = useChat({
+    api: '/api/chat',
+    onError: handleChatError,
     onFinish: async (message) => {
+      // Save AI responses to the database
       if (currentConversation) {
         await saveMessage(currentConversation.id, message)
       }

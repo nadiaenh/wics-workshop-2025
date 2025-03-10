@@ -46,6 +46,14 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
 
+        // Verify Anthropic API key is set
+        if (!process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY === "") {
+            return NextResponse.json(
+                { error: "ANTHROPIC_API_KEY environment variable is not set", code: "MISSING_API_KEY" },
+                { status: 500 }
+            )
+        }
+
         // Process the chat request
         const { messages } = await req.json()
 

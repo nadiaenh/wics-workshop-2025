@@ -22,7 +22,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="container max-w-2xl mx-auto p-6 space-y-8">
+    <div className="container max-w-2xl mx-auto p-6 space-y-8 min-h-[100dvh] overflow-y-auto">
       <div className="flex items-center gap-4">
         <Button
           variant="ghost"

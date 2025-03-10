@@ -66,7 +66,7 @@ export default function ChatSidebar({
   }, {})
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-[100dvh] md:h-full">
       {/* New chat button at the top */}
       <div className="p-4">
         <Button className="w-full justify-start gap-2" onClick={onNewChat} disabled={isLoading}>

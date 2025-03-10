@@ -234,7 +234,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden relative">
+    <div className="flex h-[100dvh] bg-background overflow-hidden relative">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div 
